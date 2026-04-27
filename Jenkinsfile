@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Setting npm cache locally"
-                npm config set cache .npm --global
+                npm config set cache .npm
 
                 echo "Cleaning old files"
                 rm -rf node_modules
