@@ -1,22 +1,32 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     stages {
+
+        stage("Checkout Code") {
+            steps {
+                checkout scm
+            }
+        }
+
         stage("Build") {
             agent {
                 docker {
                     image 'node:22-alpine'
-                    args '-u root'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
                 echo "Setting npm cache locally"
-                npm config set cache .npm
+                npm config set cache .npm --global
 
                 echo "Cleaning old files"
-                rm -rf node_modules package-lock.json
+                rm -rf node_modules
 
                 echo "Listing files"
                 ls -a
@@ -25,7 +35,7 @@ pipeline {
                 node --version
 
                 echo "Installing dependencies"
-                npm install
+                npm ci --prefer-offline
 
                 echo "Building project"
                 npm run build
