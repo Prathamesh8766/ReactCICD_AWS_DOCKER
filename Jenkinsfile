@@ -46,6 +46,25 @@ pipeline {
             }
         }
 
+        stage("Test"){
+            agent{
+                docker{
+                    image: 'node:22-alpine'
+                    args '-u root'
+                    reuseNode true
+                }
+
+            }
+            steps{
+                 sh '''   
+                npm config set cache .npm
+                rm -rf node_modules package-lock.json
+                npm install
+                npm run test
+                '''
+            }
+        }
+
         stage("Archive Build") {
             steps {
                 archiveArtifacts artifacts: 'dist/**', fingerprint: true
@@ -54,6 +73,20 @@ pipeline {
     }
 
     post {
+        success {
+            emailext (
+                subject: "SUCCESS: Build Passed",
+                body: "Your pipeline completed successfully.",
+                to: "prathampatil123789@gmail.com"
+            )
+        }
+        failure{
+            eamilext(
+                subject: "Faliuer: Build failed"
+                body: "Your pipeline failed"
+                to: "prathampatil123789@gmail.com"
+            )
+        }
         always {
             echo "Cleaning workspace"
             cleanWs()
