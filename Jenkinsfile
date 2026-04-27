@@ -1,15 +1,14 @@
 pipeline {
     agent any
-
-    options {
-        skipDefaultCheckout(true)
+    options{
+        skipDefaultCheckout(true) // skkep the ui checkout of the code
     }
 
     stages {
 
-        stage("Checkout Code") {
-            steps {
-                checkout scm
+        stage("CheckOut Code"){
+            steps{
+                checkout scm // manual check out
             }
         }
 
@@ -17,6 +16,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:22-alpine'
+                    args '-u root'
                     reuseNode true
                 }
             }
@@ -26,7 +26,7 @@ pipeline {
                 npm config set cache .npm
 
                 echo "Cleaning old files"
-                rm -rf node_modules
+                rm -rf node_modules package-lock.json
 
                 echo "Listing files"
                 ls -a
@@ -35,7 +35,7 @@ pipeline {
                 node --version
 
                 echo "Installing dependencies"
-                npm ci --prefer-offline
+                npm install
 
                 echo "Building project"
                 npm run build
