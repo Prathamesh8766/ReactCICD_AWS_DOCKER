@@ -5,12 +5,18 @@ pipeline {
         stage("Build") {
             agent {
                 docker {
-                    image 'node:18-alpine'
+                    image: 'node:22-alpine'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
+                echo "Setting npm cache locally"
+                npm config set cache .npm
+
+                echo "Cleaning old files"
+                rm -rf node_modules package-lock.json
+
                 echo "Listing files"
                 ls -a
 
@@ -23,9 +29,15 @@ pipeline {
                 echo "Building project"
                 npm run build
 
-                echo "After build"
+                echo "Build completed"
                 ls -a
                 '''
+            }
+        }
+
+        stage("Archive Build") {
+            steps {
+                archiveArtifacts artifacts: 'dist/**', fingerprint: true
             }
         }
     }
