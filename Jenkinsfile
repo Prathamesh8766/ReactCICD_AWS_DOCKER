@@ -82,8 +82,8 @@ pipeline {
         }
         failure{
             eamilext(
-                subject: "Faliuer: Build failed"
-                body: "Your pipeline failed"
+                subject: "Faliuer: Build failed",
+                body: "Your pipeline failed",
                 to: "prathampatil123789@gmail.com"
             )
         }
