@@ -59,6 +59,14 @@ pipeline {
             }
         }
 
+       stage("Take Approval"){
+            steps{
+                timeout(time: 1, unit: "MINUTES"){
+                    input message: "Do you want to proceed?", ok: "proceed"
+                }
+            }
+        }
+
         stage("Deploy"){
             steps{
                 sh '''
