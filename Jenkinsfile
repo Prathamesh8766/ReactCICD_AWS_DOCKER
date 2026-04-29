@@ -45,6 +45,7 @@ pipeline {
             }
             steps{
                 sh '''
+                echo "test"
                 npm config set cache .npm
                 rm -rf node_modules package-lock.json
                 npm install
@@ -67,14 +68,21 @@ pipeline {
             }
         }
 
-        stage("Deploy"){
-            steps{
-                sh '''
-                    npx vercel@latest --prod --token=$VERCEL_TOKEN --yes --name reactcicd
-                '''
-            }
+  stage("Deploy"){
+    agent {
+        docker {
+            image 'node:22-alpine'  
+            args '-u root'
+            reuseNode true
         }
     }
+    steps {
+        sh '''
+            echo "Deploy"
+            npx vercel@latest --prod --token=$VERCEL_TOKEN --yes --name reactcicd
+        '''
+    }
+}
 
     post { 
         success {
@@ -88,8 +96,7 @@ pipeline {
             emailext (  
                 subject: "FAILURE: Build Failed",
                 body: "Your pipeline failed",
-                to: "prathamesh.224446105@vcet.edu.in"
-            )
+                to: "prathamesh.224446105@vcet.edu.in")
         }
         always {
             cleanWs()
