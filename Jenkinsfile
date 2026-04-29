@@ -62,7 +62,7 @@ pipeline {
         stage("Deploy"){
             steps{
                 sh '''
-                    npx vercel@latest --prod --token=$VERCEL_TOKEN --yes
+                    npx vercel@latest --prod --token=$VERCEL_TOKEN --yes --name reactcicd
                 '''
             }
         }
