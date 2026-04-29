@@ -1,9 +1,13 @@
 pipeline {
     agent any
 
-    options{
-        skipDefaultCheckout(true)
+    options { 
+        skipDefaultCheckout(true) 
     }
+
+    environment {  
+        VERCEL_TOKEN = credentials("VERCEL_TOKEN") 
+    } 
 
     stages {
 
@@ -14,16 +18,16 @@ pipeline {
         }
 
         stage("Build") {
-            agent {
+            agent { 
                 docker {
                     image 'node:22-alpine'
                     args '-u root'
-                    reuseNode true
+                    reuseNode true 
                 }
             }
             steps {
                 sh '''
-                npm config set cache .npm
+                npm config set cache .npm 
                 rm -rf node_modules package-lock.json
                 npm install
                 npm run build
@@ -54,21 +58,30 @@ pipeline {
                 archiveArtifacts artifacts: 'dist/**', fingerprint: true
             }
         }
+
+        stage("Deploy"){
+            steps{
+                sh '''
+                    npm install -g vercel  
+                    vercel --prod --token=$VERCEL_TOKEN --yes  
+                '''
+            }
+        }
     }
 
-    post {
+    post { 
         success {
             emailext (
                 subject: "SUCCESS: Build Passed",
                 body: "Your pipeline completed successfully.",
-                to: "prathampatil123789@gmail.com"
+                to: "prathamesh.224446105@vcet.edu.in"
             )
         }
         failure {
             emailext (  
                 subject: "FAILURE: Build Failed",
                 body: "Your pipeline failed",
-                to: "prathampatil123789@gmail.com"
+                to: "prathamesh.224446105@vcet.edu.in"
             )
         }
         always {
